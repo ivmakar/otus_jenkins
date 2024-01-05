@@ -8,8 +8,8 @@ RUN curl -O https://dl.google.com/android/repository/commandlinetools-linux-8512
 && export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/bin \
 && yes | sdkmanager --sdk_root=/sdk --licenses
 
-COPY ./gradle-profiler-0.20.0 /gradle-profiler
+COPY ./gradle-profiler-0.19.0 /gradle-profiler
 
-RUN export PATH=$PATH:/gradle-profiler
+RUN cd /gradle-profiler && ./gradlew installDist
 
 USER jenkins
