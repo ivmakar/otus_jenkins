@@ -1,0 +1,45 @@
+pipeline {
+    agent {
+        docker {
+            image 'ivmak/jenkins:1.0.0'
+            args '-it'
+        }
+    }
+    
+    parameters {
+        string(
+            name: "branch",
+            defaultValue: "development",
+            description: "Ветка git"
+        )
+    }
+    
+    triggers {
+        cron('H 22 * * *')
+    }
+    
+    stages {
+        stage('clone') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: branch]],
+                    extensions: [],
+                    userRemoteConfigs: [[url: 'https://github.com/ivmakar/TotalCoverage.git']]
+                ])
+            }
+        }
+        
+        stage("gradleProfile") {
+            steps {
+                sh "/gradle-profiler/build/install/gradle-profiler/bin/gradle-profiler --benchmark --project-dir . assembleDebug"
+            }
+        }
+    }
+    
+    post {
+        always {
+            archiveArtifacts(artifacts: '**/profile-out-3/benchmark**', allowEmptyArchive: true)
+        }
+    }
+}
